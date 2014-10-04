@@ -28,9 +28,9 @@ func New(alg string, signKey []byte, verifyKey []byte) *jwtAuth {
 	}
 }
 
-func (ja *jwtAuth) Handle(paramAliases ...string) func(http.Handler) http.Handler {
-	f := func(h http.Handler) http.Handler {
-		fn := func(c web.C, w http.ResponseWriter, r *http.Request) {
+func (ja *jwtAuth) Handle(paramAliases ...string) func(*web.C, http.Handler) http.Handler {
+	f := func(c *web.C, h http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
 			if c.Env == nil {
 				c.Env = make(map[string]interface{})
 			}
@@ -83,13 +83,13 @@ func (ja *jwtAuth) Handle(paramAliases ...string) func(http.Handler) http.Handle
 			c.Env["token"] = token
 			h.ServeHTTP(w, r)
 		}
-		return web.HandlerFunc(fn)
+		return http.HandlerFunc(fn)
 	}
 	return f
 }
 
-func (ja *jwtAuth) Handler(h http.Handler) http.Handler {
-	return ja.Handle("")(h)
+func (ja *jwtAuth) Handler(c *web.C, h http.Handler) http.Handler {
+	return ja.Handle("")(c, h)
 }
 
 func (ja *jwtAuth) Encode(claims map[string]interface{}) (tokenString string, err error) {
