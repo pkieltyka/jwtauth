@@ -31,7 +31,7 @@ func New(alg string, signKey []byte, verifyKey []byte) *jwtAuth {
 func (ja *jwtAuth) Handle(paramAliases ...string) func(*web.C, http.Handler) http.Handler {
 	f := func(c *web.C, h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			if c.Env == nil {
+			if c != nil && c.Env == nil {
 				c.Env = make(map[string]interface{})
 			}
 
@@ -80,7 +80,10 @@ func (ja *jwtAuth) Handle(paramAliases ...string) func(*web.C, http.Handler) htt
 			}
 
 			// Token is valid! save it in the context
-			c.Env["token"] = token
+			if c != nil {
+				c.Env["token"] = token
+				c.Env["jwt"] = token.Raw
+			}
 			h.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(fn)
