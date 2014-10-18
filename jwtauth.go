@@ -13,22 +13,22 @@ var (
 	errUnauthorized = errors.New("unauthorized token")
 )
 
-type jwtAuth struct {
+type JwtAuth struct {
 	signKey   []byte
 	verifyKey []byte
 	signer    jwt.SigningMethod
 }
 
 // verifyKey is only for RSA
-func New(alg string, signKey []byte, verifyKey []byte) *jwtAuth {
-	return &jwtAuth{
+func New(alg string, signKey []byte, verifyKey []byte) *JwtAuth {
+	return &JwtAuth{
 		signKey:   signKey,
 		verifyKey: verifyKey,
 		signer:    jwt.GetSigningMethod(alg),
 	}
 }
 
-func (ja *jwtAuth) Handle(paramAliases ...string) func(*web.C, http.Handler) http.Handler {
+func (ja *JwtAuth) Handle(paramAliases ...string) func(*web.C, http.Handler) http.Handler {
 	f := func(c *web.C, h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			if c != nil && c.Env == nil {
@@ -91,15 +91,15 @@ func (ja *jwtAuth) Handle(paramAliases ...string) func(*web.C, http.Handler) htt
 	return f
 }
 
-func (ja *jwtAuth) Handler(c *web.C, h http.Handler) http.Handler {
+func (ja *JwtAuth) Handler(c *web.C, h http.Handler) http.Handler {
 	return ja.Handle("")(c, h)
 }
 
-func (ja *jwtAuth) Encode(claims map[string]interface{}) (tokenString string, err error) {
+func (ja *JwtAuth) Encode(claims map[string]interface{}) (tokenString string, err error) {
 	return jwt.New(ja.signer).SignedString(ja.signKey)
 }
 
-func (ja *jwtAuth) Decode(tokenString string) (token *jwt.Token, err error) {
+func (ja *JwtAuth) Decode(tokenString string) (token *jwt.Token, err error) {
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if ja.verifyKey != nil && len(ja.verifyKey) > 0 {
 			return ja.verifyKey, nil
