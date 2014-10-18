@@ -96,7 +96,9 @@ func (ja *JwtAuth) Handler(c *web.C, h http.Handler) http.Handler {
 }
 
 func (ja *JwtAuth) Encode(claims map[string]interface{}) (tokenString string, err error) {
-	return jwt.New(ja.signer).SignedString(ja.signKey)
+	t := jwt.New(ja.signer)
+	t.Claims = claims
+	return t.SignedString(ja.signKey)
 }
 
 func (ja *JwtAuth) Decode(tokenString string) (token *jwt.Token, err error) {
