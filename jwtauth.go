@@ -99,6 +99,7 @@ func (ja *JwtAuth) Encode(claims map[string]interface{}) (t *jwt.Token, tokenStr
 	t = jwt.New(ja.signer)
 	t.Claims = claims
 	tokenString, err = t.SignedString(ja.signKey)
+	t.Raw = tokenString
 	return
 }
 
