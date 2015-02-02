@@ -95,14 +95,15 @@ func (ja *JwtAuth) Handler(c *web.C, h http.Handler) http.Handler {
 	return ja.Handle("")(c, h)
 }
 
-func (ja *JwtAuth) Encode(claims map[string]interface{}) (tokenString string, err error) {
-	t := jwt.New(ja.signer)
+func (ja *JwtAuth) Encode(claims map[string]interface{}) (t *jwt.Token, tokenString string, err error) {
+	t = jwt.New(ja.signer)
 	t.Claims = claims
-	return t.SignedString(ja.signKey)
+	tokenString, err = t.SignedString(ja.signKey)
+	return
 }
 
-func (ja *JwtAuth) Decode(tokenString string) (token *jwt.Token, err error) {
-	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+func (ja *JwtAuth) Decode(tokenString string) (t *jwt.Token, err error) {
+	return jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 		if ja.verifyKey != nil && len(ja.verifyKey) > 0 {
 			return ja.verifyKey, nil
 		} else {
