@@ -32,7 +32,7 @@ func (ja *JwtAuth) Handle(paramAliases ...string) func(*web.C, http.Handler) htt
 	f := func(c *web.C, h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			if c != nil && c.Env == nil {
-				c.Env = make(map[string]interface{})
+				c.Env = make(map[interface{}]interface{})
 			}
 
 			var tokenStr string
