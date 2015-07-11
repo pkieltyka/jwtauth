@@ -74,7 +74,7 @@ func (ja *JwtAuth) Handle(paramAliases ...string) func(*web.C, http.Handler) htt
 
 			// Verify the token
 			token, err := ja.Decode(tokenStr)
-			if err != nil || !token.Valid {
+			if err != nil || !token.Valid || token.Method != ja.signer {
 				http.Error(w, errUnauthorized.Error(), 401)
 				return
 			}
